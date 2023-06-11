@@ -1290,6 +1290,7 @@ function getAllAssignableUsers() {
 	let key = Math.floor(Math.random() * cohosts.size);
 	for (let username of cohosts.keys()) {
 		if (index === key) {
+			console.log(logPrefix + "last cohost: " + username)
 			lastCohost = username
 			continue
 		}
