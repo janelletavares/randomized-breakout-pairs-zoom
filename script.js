@@ -1273,10 +1273,7 @@ function getAllAssignableUsers() {
 		}
 		if (containsCohost(username) === true) {
 			cohosts.set(username, true)
-			//if (lastCohost === "") {
-			//	lastCohost = username
-			//	continue
-			//}
+			continue
 		}
 
 		// Add an attribute for our purposes
@@ -1284,8 +1281,7 @@ function getAllAssignableUsers() {
 	}
 	assignButtons[0].click(); // unclick
 
-	//shuffle cohosts
-	// grab lastCohost
+	// grab lastCohost randomly from list
 	let index = 0
 	let key = Math.floor(Math.random() * cohosts.size);
 	for (let username of cohosts.keys()) {
