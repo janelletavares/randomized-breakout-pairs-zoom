@@ -1057,6 +1057,12 @@ function populateMatchesToAvoid(blob) {
 }
 
 function isCohost(participant) {
+	if (participant.DisplayName.includes("***")) {
+		// if a cohost is currently skipping breakouts, don't treat them like a cohost
+		// this should be unnecessary
+		console.log("skipping *** cohost")
+		return false
+	}
 	return cohosts.get(participant.DisplayName) !== undefined
 }
 
@@ -1288,9 +1294,9 @@ function getAllAssignableUsers() {
 		if (index === key) {
 			console.log(logPrefix + "last cohost: " + username)
 			lastCohost = username
-			continue
+		} else {
+			y.push(username)
 		}
-		y.push(username)
 		index++
 	}
 

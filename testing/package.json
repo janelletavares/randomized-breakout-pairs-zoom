@@ -1,0 +1,17 @@
+{
+  "name": "bc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "farm.js",
+  "dependencies": {
+    "chromedriver": "^119.0.1",
+    "npm": "^10.2.4",
+    "selenium": "^2.20.0",
+    "selenium-webdriver": "^4.15.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
