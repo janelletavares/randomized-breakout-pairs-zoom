@@ -1253,10 +1253,12 @@ function isPronoun(part) {
  */
 function getAllAssignableUsers() {
 
+	let y = [];
 	// Relies on clicking the first Assign button.
 	if (!assignButtons[0])
-		return false;
+		return y;
 	assignButtons[0].click();
+	// is the first click not working?
 
 	let x = document.getElementsByClassName(
 		'zmu-data-selector-item__text bo-room-assign-list-scrollbar__item-text'
@@ -1264,11 +1266,10 @@ function getAllAssignableUsers() {
 	if (x.length === 0) {
 		//alert('(Zoomie) No assignable users!');
 		assignButtons[0].click(); // Close the box
-		return false;
+		return y;
 	}
 
 	asterisksUsers.clear()
-	let y = [];
 	let lastCohost = "";
 	for (let i=0; i<x.length; i++) {
 		let username = x[i].innerText.trim()
