@@ -11,9 +11,9 @@
  *
  * Notes:
  *  - For debugging purposes, you can mimic breakout rooms functionality
- * 		on a "basic" account by enabling
+ *        on a "basic" account by enabling
  *      `MeetingConfig.meetingOptions.isEnableBreakoutRoom = true'
- * 		in the browser console.
+ *        in the browser console.
  */
 
 /**
@@ -144,22 +144,22 @@ function add_styles() {
 // disappears.
 window.setInterval(function () {
 	// Breakout window popup
-	let a = document.getElementById('boRoomMgmtWindow');
-	if (a && !breakoutWindowOpen) {
+	let breakoutWindowPopup = document.getElementById('boRoomMgmtWindow');
+	if (breakoutWindowPopup && !breakoutWindowOpen) {
 		// Attach the Zoomie button.
 		console.log(logPrefix + 'Breakout window opened');
 		breakoutWindowOpen = true;
 		setTimeout(attachBreakoutContainer, 200);
-	} else if (!a && breakoutWindowOpen) {
+	} else if (!breakoutWindowPopup && breakoutWindowOpen) {
 		// Reset the breakoutWindowOpen boolean.
 		breakoutWindowOpen = false;
 	}
 
 	// "Recreate" button popup
-	let b = document.getElementsByClassName('recreate-paper__footer');
-	if (b && b.length === 1 && !b[0].zoomie_mark) {
-		b.zoomie_mark = 1;
-		b[0].onclick = attachBreakoutContainer;
+	let recreateButtonPopup = document.getElementsByClassName('recreate-paper__footer');
+	if (recreateButtonPopup && recreateButtonPopup.length === 1 && !recreateButtonPopup[0].zoomie_mark) {
+		recreateButtonPopup.zoomie_mark = 1;
+		return [0].onclick = attachBreakoutContainer;
 	}
 }, 1000);
 
@@ -172,15 +172,11 @@ window.onresize = function () {
 }
 
 function getBreakoutRoomHeight() {
-	let x = document.getElementsByClassName('bo-mgmtwindow-content');
-	if (x && x[0] && x[0].style) {
+	let breakoutManager = document.getElementsByClassName('bo-mgmtwindow-content');
+	if (breakoutManager && breakoutManager[0] && breakoutManager[0].style) {
 		breakoutRoomHeight = parseInt(
-			x[0].style.height.replace('px', '')
+			breakoutManager[0].style.height.replace('px', '')
 		);
-	}
-	if (elements.userIgnoreSelect) {
-		//~ elements.userIgnoreSelect.style.height = (breakoutRoomHeight-80) + 'px';
-		//~ elements.userIgnoreSelectAccept.style.marginTop = (breakoutRoomHeight-80) + 'px';
 	}
 }
 
@@ -286,7 +282,7 @@ function attachZoomie() {
 	z.setAttribute('style', 'z-index:1002;display:none;margin-left: 4px;');
 	z.className = 'btn btn-primary';
 	z.innerText = 'Cancel';
-	z.onclick = cancelIgnoreUsersSelect;
+	z.onclick = cancelMatchesReview;
 	elements.okayButtonDiv.appendChild(z);
 	elements.userIgnoreSelectCancel = z;
 }
@@ -433,7 +429,7 @@ function attachBreakoutContainer() {
 	z = document.createElement('button');
 	y[0].insertBefore(z, y[0].firstChild);
 	z.innerHTML = 'Zoomie';
-	z.onclick = showIgnoreUsersSelect;
+	z.onclick = showMatchesReview;
 	z.className =
 		'zmu-btn bo-bottom-btn zmu-btn--default zmu-btn__outline--blue';
 	// Changed Feb. 2021
@@ -450,16 +446,17 @@ function attachBreakoutContainer() {
  * @return: Boolean True if listener was added to "Open All Rooms" button.
  */
 function attachOpenAllRooms() {
-	let x = document.getElementsByClassName(
+	let openAllRoomsButton = document.getElementsByClassName(
 		'zmu-btn bo-bottom-btn zmu-btn--primary zmu-btn__outline--blue'
 		// prior to Feb. 2021
 		// 'zmu-btn zm-btn-legacy bottom-btn zmu-btn--primary zmu-btn__outline--blue'
 	);
-	if (x[0]) {
+
+	if (openAllRoomsButton[0]) {
 		// Update July 2020: Zoom added a second button with same class name.
-		for (let i = 0; i < x.length; i++) {
-			if (x[i].innerText.trim() === 'Open All Rooms') {
-				x[i].addEventListener('click', updatePairingsFinal, false);
+		for (let i = 0; i < openAllRoomsButton.length; i++) {
+			if (openAllRoomsButton[i].innerText.trim() === 'Open All Rooms') {
+				openAllRoomsButton[i].addEventListener('click', updatePairingsFinal, false);
 				return true;
 			}
 		}
@@ -471,14 +468,14 @@ function attachOpenAllRooms() {
  * Fire events when Open All Rooms is clicked.
  */
 function attachCloseAllRooms() {
-	let x = document.getElementsByClassName(
+	let closeAllRoomsButton = document.getElementsByClassName(
 		'zmu-btn zmu-btn--danger zmu-btn__outline--blue'
 	);
-	if (x[0]) {
+	if (closeAllRoomsButton[0]) {
 		// Update July 2020: Zoom added a second button with same class name.
-		for (let i = 0; i < x.length; i++) {
-			if (x[i].innerText.trim() === 'Close All Rooms') {
-				x[i].addEventListener('click', closeAllRooms, false);
+		for (let i = 0; i < closeAllRoomsButton.length; i++) {
+			if (closeAllRoomsButton[i].innerText.trim() === 'Close All Rooms') {
+				closeAllRoomsButton[i].addEventListener('click', closeAllRooms, false);
 				// If there is an "auto-close" set, then use it now.
 				setTimeout(autoCloseRooms,
 					parseInt(localStorage['zoomie-closeTime']) * 1000);
@@ -495,14 +492,16 @@ function attachCloseAllRooms() {
  *
  */
 function autoCloseRooms() {
-	let x = document.getElementsByClassName(
+	let closeAllRoomsButton = document.getElementsByClassName(
 		'zmu-btn zmu-btn--danger zmu-btn__outline--blue'
 	);
-	if (x[0]) {
+	if (closeAllRoomsButton[0]) {
 		// Update July 2020: Zoom added a second button with same class name.
-		for (let i = 0; i < x.length; i++) {
-			if (x[i].innerText.trim() === 'Close All Rooms') {
-				x[i].click();
+		for (let i = 0; i < closeAllRoomsButton.length; i++) {
+			if (closeAllRoomsButton[i].innerText.trim() === 'Close All Rooms') {
+	setTimeout(() => {
+				closeAllRoomsButton[i].click();
+	}, 0);
 				break;
 			}
 		}
@@ -541,26 +540,26 @@ async function updatePairingsFinal() {
 	//	console.log(logPrefix+"...30s...")
 	//}
 	let footer = document.getElementsByClassName(
-		"bo-room-in-progress-footer"
+	    "bo-room-in-progress-footer"
 	)[0];
 	let broadcast = footer.getElementsByClassName(
-		"bo-room-in-progress-footer__btn-broadcast"
+	    "bo-room-in-progress-footer__btn-broadcast"
 	)[0];
 	broadcast.click();
 	console.log(logPrefix+"#1")
 
 	let broadcastMessage = footer.getElementsByClassName(
-		"zmu-btn broadcastclassNameon-paper__btn zmu-btn--ghost zmu-btn__outline--blue"
+	    "zmu-btn broadcastclassNameon-paper__btn zmu-btn--ghost zmu-btn__outline--blue"
 	)[0];
 	broadcastMessage.click();
 	console.log(logPrefix+"#2")
 	let textArea = footer.getElementsByClassName(
-		"bmaxLengthoadcastclassNamel__textarea"
+	    "bmaxLengthoadcastclassNamel__textarea"
 	)[0];
 	textArea.value = "H A L F W A Y   T H R O U G H !! :^)"
 	console.log(logPrefix+"#3 filled")
 	let send = footer.getElementsByClassName(
-		"bo-room-broadcast-panel__send-btn"
+	    "bo-room-broadcast-panel__send-btn"
 	)[0];
 	send.click();
 	console.log(logPrefix+"#4")
@@ -576,9 +575,9 @@ function closeAllRooms() {
 }
 
 /**
- * Add checkboxes and radios to ignore or make users the odd-number user.
+ * Display BO matches for review
  */
-function addUserSelect() {
+function addMatchesReview() {
 	let div = elements.userIgnoreSelectList;
 	div.innerHTML = '';
 
@@ -618,7 +617,7 @@ function addUserSelect() {
 /**
  * Hide & cancel
  */
-function cancelIgnoreUsersSelect() {
+function cancelMatchesReview() {
 	detachSettings();
 	// Show the default dialogs
 	try {
@@ -631,7 +630,7 @@ function cancelIgnoreUsersSelect() {
 /**
  * Hide ignore users dialog box and run the pairing program.
  */
-function hideIgnoreUsersSelect() {
+function hideMatchesReview() {
 	detachSettings();
 
 	// Show the default dialogs
@@ -645,9 +644,9 @@ function hideIgnoreUsersSelect() {
 /**
  *
  */
-function addToRooms() {
+async function addToRooms() {
 	// hide the zoomie select dialog
-	hideIgnoreUsersSelect();
+	hideMatchesReview();
 
 	// add users to rooms
 	//let r = parseInt(localStorage['zoomie-roundNumber']);
