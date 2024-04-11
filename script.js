@@ -1286,6 +1286,7 @@ function getAllAssignableUsers() {
 	}
 
 	asterisksUsers.clear()
+	cohosts.clear()
 	let y = [];
 	let lastCohost = "";
 	for (let i = 0; i < x.length; i++) {
