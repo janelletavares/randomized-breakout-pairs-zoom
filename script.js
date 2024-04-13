@@ -495,9 +495,9 @@ function autoCloseRooms() {
 		// Update July 2020: Zoom added a second button with same class name.
 		for (let i = 0; i < closeAllRoomsButton.length; i++) {
 			if (closeAllRoomsButton[i].innerText.trim() === 'Close All Rooms') {
-	setTimeout(() => {
-				closeAllRoomsButton[i].click();
-	}, 0);
+				setTimeout(() => {
+					closeAllRoomsButton[i].click();
+				}, 0);
 				break;
 			}
 		}
@@ -667,89 +667,30 @@ async function addToRooms() {
 		// Made it past nulls. Open "Assign" dialog box.
 		// Loops through checkboxes.
 		// this finds all of the checkboxes, regardless of which popup they belong to
-		//setTimeout(() => {
-		console.log("addToRooms: room no "+roomNo);
-		//await clickButtonWithTimeout(assignButtons[roomNo]);
-		//await findPair(p);
-		//await clickButtonWithTimeout(assignButtons[roomNo]);
-/*
-		clickWithPromise(assignButtons[roomNo])
-			.then(function (result) {
-				// if clicking doesn't happen inside a task, the result is not available to the rest of the code
-				console.log("inside then: " + result)
-				findPair(p, assignButtons[roomNo])
-			})
-			.catch(function() {
-				console.log("balls");
-			})
-
- */
+		console.log("addToRooms: room no " + roomNo);
 
 		await asyncClick(assignButtons[roomNo])
 		await asyncFindPair(p)
 		await asyncClick(assignButtons[roomNo])
 		roomNo++;
 	}
-
-}
-
-function findPair(pair, element) {
-	return new Promise((resolve) => {
-	let availableParticipants = document.getElementsByClassName(
-		//'zmu-data-selector-item__icon-text-wrapper zmu-data-selector-item__icon-text-wrapper--has-checkbox'
-		//'zmu-data-selector-item'
-		//'zmu-data-selector-item__text'
-		'zmu-data-selector-item__text bo-room-assign-list-scrollbar__item-text'
-		//'zmu-data-selector-item__checkbox'
-	);
-	console.log(logPrefix + "findPair: num avail part " + availableParticipants.length);
-
-	for (let k = 0; k < availableParticipants.length; k++) {
-		if (availableParticipants[k].innerText === pair[0].DisplayName
-			|| availableParticipants[k].innerText === pair[1].DisplayName) {
-			console.log(logPrefix + "findPair: clicking user checkbox [" + k + "] " + availableParticipants[k].innerText + " " );
-
-		setTimeout(() => {
-		//queueMicrotask(function() {
-			if (availableParticipants[k]) {
-				availableParticipants[k].click();
-			} else {
-			console.log(logPrefix + "findPair: wtf am i skipping "  + availableParticipants[k].innerText);
-			}
-		}, 0);  // also promise? queueMicrotask?
-		}
-	}
-		setTimeout(() => {
-	console.log(logPrefix + "findPair: closing assign menu");
-
-			element.click();
-		}, 0);
-	resolve("find pair accomplished")
-	});
 }
 
 async function asyncFindPair(pair) {
 	let availableParticipants = document.getElementsByClassName(
-		//'zmu-data-selector-item__icon-text-wrapper zmu-data-selector-item__icon-text-wrapper--has-checkbox'
-		//'zmu-data-selector-item'
-		//'zmu-data-selector-item__text'
 		'zmu-data-selector-item__text bo-room-assign-list-scrollbar__item-text'
-		//'zmu-data-selector-item__checkbox'
 	);
 	console.log(logPrefix + "findPair: num avail part " + availableParticipants.length);
 
 	for (let k = 0; k < availableParticipants.length; k++) {
 		if (availableParticipants[k].innerText === pair[0].DisplayName
 			|| availableParticipants[k].innerText === pair[1].DisplayName) {
-			console.log(logPrefix + "findPair: clicking user checkbox [" + k + "] " + availableParticipants[k].innerText + " " );
-		await new Promise(r =>
-		setTimeout(() => {
-		//queueMicrotask(function() {
-			//if (availableParticipants[k]) {
-				availableParticipants[k].click();
-			//}
-			r();
-		}, 0));  // also promise? queueMicrotask?
+			console.log(logPrefix + "findPair: clicking user checkbox [" + k + "] " + availableParticipants[k].innerText + " ");
+			await new Promise(r =>
+				setTimeout(() => {
+					availableParticipants[k].click();
+					r();
+				}, 0));  // queueMicrotask?
 		}
 	}
 	return "done";
@@ -794,7 +735,6 @@ async function showMatchesReview() {
 
 	console.log("after awaits in showMatchesReview")
 	// Update global user data.
-	//setTimeout(() => {
 	assignButtons = getAllAssignButtons();
 	if (assignButtons[0]) {
 		initializeAssignableUsers();
@@ -836,23 +776,23 @@ async function showZoomieSettings() {
 	await closeAssignPopups()
 	await resetPairings()
 
-		// Attach the elements
-		attachZoomieSettings(); // Create the elements.
-		elements.zoomieSettingsInputTitle.className = 'zoomie-ignoreUsersTitle zoomie-show';
-		elements.zoomieSettingsContainer.className = 'zoomie-ignoreContainer zoomie-show';
-		elements.zoomieSettingsInput.style.display = '';
-		elements.zoomieSettingsInputAccept.style.display = '';
-		elements.zoomieSettingButtonDiv.style.display = '';
+	// Attach the elements
+	attachZoomieSettings(); // Create the elements.
+	elements.zoomieSettingsInputTitle.className = 'zoomie-ignoreUsersTitle zoomie-show';
+	elements.zoomieSettingsContainer.className = 'zoomie-ignoreContainer zoomie-show';
+	elements.zoomieSettingsInput.style.display = '';
+	elements.zoomieSettingsInputAccept.style.display = '';
+	elements.zoomieSettingButtonDiv.style.display = '';
 
-		// Users
-		// addMatchesReview();
+	// Users
+	// addMatchesReview();
 
-		// Hide the background dialogs
-		try {
-			document.getElementsByClassName('window-content')[0].style.display = 'none';
-		} catch (e) {
+	// Hide the background dialogs
+	try {
+		document.getElementsByClassName('window-content')[0].style.display = 'none';
+	} catch (e) {
 
-		}
+	}
 }
 
 
@@ -863,43 +803,38 @@ const visibleParticipantsPopUpClass1 = 'zmu-tooltip-zmu-paper'
 const visibleParticipantsPopUpClass2 = 'bo-room-assign-list-scrollbar'
 
 async function closeAssignPopups() {
-		console.log("inside closeAssignPopups")
-		let a = document.getElementsByClassName(
-			'zmu-btn bo-room-item-container__ghost-blue zmu-btn--ghost ' +
-			'zmu-btn__outline--blue zmu-btn--sm'
-		);
-		// zmu-data-selector
-		// zmu-data-selector-item
-
-		// alternative classes to try
-		// 'zmu-tooltip__container'
-		let x = document.getElementsByClassName(visibleParticipantsPopUpClass2);
-		console.log(logPrefix + "cap: containers to close found: " + x.length);
-		for (let i = 0; i < x.length; i++) {
-			// all of the containers are there all of the time, but most are not visible
-			if (x[i].innerHTML !== '') {
-				// Typically only one opened at a time.
-				// Thus, could break here.
-				// But for the sake of completeness, it's worth it to
-				// assume that in some case two dialog popups would
-				// be open simultaneously.
-				console.log(logPrefix + "cap: clicking a button");
-		await new Promise(r =>
-	setTimeout(() => {
-				a[i].click();
-			r();
-	}, 0)
+	console.log("inside closeAssignPopups")
+	let a = document.getElementsByClassName(
+		'zmu-btn bo-room-item-container__ghost-blue zmu-btn--ghost ' +
+		'zmu-btn__outline--blue zmu-btn--sm'
 	);
-			}
+
+	let x = document.getElementsByClassName(visibleParticipantsPopUpClass2);
+	console.log(logPrefix + "cap: containers to close found: " + x.length);
+	for (let i = 0; i < x.length; i++) {
+		// all of the containers are there all of the time, but most are not visible
+		if (x[i].innerHTML !== '') {
+			// Typically only one opened at a time.
+			// Thus, could break here.
+			// But for the sake of completeness, it's worth it to
+			// assume that in some case two dialog popups would
+			// be open simultaneously.
+			console.log(logPrefix + "cap: clicking a button");
+			await new Promise(r =>
+				setTimeout(() => {
+					a[i].click();
+					r();
+				}, 0)
+			);
 		}
+	}
 }
 
 async function resetPairings() {
-	//return new Promise((resolve) => {
 	currentMatches = []
 	pendingMatches = new Map()
 
-		console.log("inside resetpairings: "+assignButtons.length)
+	console.log("inside resetpairings: " + assignButtons.length)
 	// Go through every room and remove any users in the room.
 	for (let i = 0; i < assignButtons.length; i++) {
 		try {
@@ -910,20 +845,7 @@ async function resetPairings() {
 			console.log(logPrefix + 'Could not reset pairings');
 
 		}
-		/*
-		clickWithPromise()
-			.then(function (result) {
-				return
-			})
-			.then(() => clickWithPromise(assignButtons[i]))
-			.catch(function () {
-				console.log("did not reset pairs completely")
-			})
-
-		 */
 	}
-	//resolve("pairings have been reset")
-	//});
 }
 
 async function removeAllParticipantsFromBORoom() {
@@ -932,16 +854,14 @@ async function removeAllParticipantsFromBORoom() {
 		'zmu-data-selector-item__checkbox zmu-data-selector-item__checkbox--checked'
 	);
 	for (let k = allCheckedBoxes.length - 1; k >= 0; k--) {
-		console.log('removing user from room '+k);
+		console.log('removing user from room ' + k);
 		await new Promise(r =>
-	setTimeout(() => {
-		allCheckedBoxes[k].click(); // Unclick the user.
-			r();
-	}, 0)
-	);
+			setTimeout(() => {
+				allCheckedBoxes[k].click(); // Unclick the user.
+				r();
+			}, 0)
+		);
 	}
-	//resolve("all checked boxes unchecked")
-//});
 	return "done";
 }
 
@@ -1395,7 +1315,6 @@ function initializeAssignableUsers() {
 		.then(() => {
 			return new Promise((resolve) => {
 				console.log("inside IAU promise")
-				//setTimeout(() => { ???
 				assignableUsers = []
 				let x = document.getElementsByClassName(
 					'zmu-data-selector-item__text bo-room-assign-list-scrollbar__item-text'
@@ -1403,9 +1322,8 @@ function initializeAssignableUsers() {
 				console.log("IAU: found available parts num: " + x.length)
 				if (x.length === 0) {
 					//alert('(Zoomie) No assignable users!');
-					//closeAssignPopups()
 					assignButtons[0].click(); // Close the box, maybe just resolve instead
-					return false;
+					return;
 				}
 
 				asterisksUsers.clear()
@@ -1450,9 +1368,9 @@ function initializeAssignableUsers() {
 		.then(() => {
 			return clickWithPromise(assignButtons[0]);
 		})
-		.then(() => makeMatchesAndReview() )
+		.then(() => makeMatchesAndReview())
 		.catch((broken) => {
-			console.log("oh noes "+broken)
+			console.log("oh noes " + broken)
 		})
 }
 
@@ -1503,7 +1421,6 @@ let ih = '';
 if (document.readyState === "complete"
 	|| document.readyState === "interactive") {
 	ih = document.body.innerHTML;
-
 	load();
 } else {
 	document.onreadystatechange = function () {
