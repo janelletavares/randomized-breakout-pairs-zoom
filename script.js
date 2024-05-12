@@ -19,7 +19,7 @@
 /**
  * Global variables
  */
-let logPrefix = 'Zoomie extension::';
+let logPrefix = 'Bonobot extension::';
 let assignableUsers = [], // Assignable users
 	assignButtons = [], // Assign buttons
 	currentMatches = [],
@@ -205,7 +205,7 @@ function attachZoomie() {
 	// Ignore users title bar
 	z = document.createElement('div');
 	z.className = 'zoomie-ignoreUsersTitle';
-	z.innerText = 'Zoomie';
+	z.innerText = 'Bonobot';
 	elements.ignoreContainer.appendChild(z);
 	elements.userIgnoreSelectTitle = z;
 
@@ -302,7 +302,7 @@ function attachZoomieSettings() {
 	// Ignore users title bar
 	z = document.createElement('div');
 	z.className = 'zoomie-ignoreUsersTitle';
-	z.innerText = 'Zoomie Settings';
+	z.innerText = 'Bonobot Settings';
 	elements.zoomieSettingsContainer.appendChild(z);
 
 	//////////////////////////////////////////
@@ -363,7 +363,7 @@ function attachZoomieSettings() {
 }
 
 /**
- * After user clicks "Breakout Rooms" button, adds "Zoomie".
+ * After user clicks "Breakout Rooms" button, adds "Bonobot".
  */
 async function attachBreakoutContainer() {
 	// Check footer exists
@@ -410,7 +410,7 @@ async function attachBreakoutContainer() {
 
 	let z = document.createElement('button');
 	y[0].insertBefore(z, y[0].firstChild);
-	z.innerHTML = 'Zoomie Settings';
+	z.innerHTML = 'Bonobot Settings';
 	z.onclick = showZoomieSettings;
 	z.className =
 		'zmu-btn bo-bottom-btn zmu-btn--default zmu-btn__outline--blue';
@@ -424,7 +424,7 @@ async function attachBreakoutContainer() {
 	// people into breakout rooms of size=2.
 	z = document.createElement('button');
 	y[0].insertBefore(z, y[0].firstChild);
-	z.innerHTML = 'Zoomie';
+	z.innerHTML = 'Bonobot';
 	z.onclick = showMatchesReview;
 	z.className =
 		'zmu-btn bo-bottom-btn zmu-btn--default zmu-btn__outline--blue';
@@ -1408,7 +1408,7 @@ function getAllAssignButtons() {
 	);
 	// @TODO click "Add Room" programmatically instead of requiring it manually
 	if (x.length === 0) {
-		alert('(Zoomie) No assignable buttons!');
+		alert('(Bonobot) No assignable buttons!');
 		return false;
 	}
 	return x;
