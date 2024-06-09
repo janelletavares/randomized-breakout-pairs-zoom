@@ -19,7 +19,7 @@
 /**
  * Global variables
  */
-let logPrefix = 'Zoomie extension::';
+let logPrefix = 'Bonobot extension::';
 let assignableUsers = [], // Assignable users
 	assignButtons = [], // Assign buttons
 	currentMatches = [],
@@ -205,7 +205,7 @@ function attachZoomie() {
 	// Ignore users title bar
 	z = document.createElement('div');
 	z.className = 'zoomie-ignoreUsersTitle';
-	z.innerText = 'Zoomie';
+	z.innerText = 'Bonobot';
 	elements.ignoreContainer.appendChild(z);
 	elements.userIgnoreSelectTitle = z;
 
@@ -302,7 +302,7 @@ function attachZoomieSettings() {
 	// Ignore users title bar
 	z = document.createElement('div');
 	z.className = 'zoomie-ignoreUsersTitle';
-	z.innerText = 'Zoomie Settings';
+	z.innerText = 'Bonobot Settings';
 	elements.zoomieSettingsContainer.appendChild(z);
 
 	//////////////////////////////////////////
@@ -363,10 +363,9 @@ function attachZoomieSettings() {
 }
 
 /**
- * After user clicks "Breakout Rooms" button, adds "Zoomie".
+ * After user clicks "Breakout Rooms" button, adds "Bonobot".
  */
-function attachBreakoutContainer() {
-
+async function attachBreakoutContainer() {
 	// Check footer exists
 	let y = document.getElementsByClassName(
 		//'bo-mgmtwindow-content__footer'
@@ -379,10 +378,7 @@ function attachBreakoutContainer() {
 	}
 
 	// Remove any users from rooms
-	resetPairings();
-	setTimeout(resetPairings, 200);
-	setTimeout(resetPairings, 400);
-	setTimeout(resetPairings, 600);
+	await resetPairings();
 
 	// Add listener to "Open All Rooms" button but only if it exists.
 	if (!attachOpenAllRooms()) {
@@ -414,7 +410,7 @@ function attachBreakoutContainer() {
 
 	let z = document.createElement('button');
 	y[0].insertBefore(z, y[0].firstChild);
-	z.innerHTML = 'Zoomie Settings';
+	z.innerHTML = 'Bonobot Settings';
 	z.onclick = showZoomieSettings;
 	z.className =
 		'zmu-btn bo-bottom-btn zmu-btn--default zmu-btn__outline--blue';
@@ -428,7 +424,7 @@ function attachBreakoutContainer() {
 	// people into breakout rooms of size=2.
 	z = document.createElement('button');
 	y[0].insertBefore(z, y[0].firstChild);
-	z.innerHTML = 'Zoomie';
+	z.innerHTML = 'Bonobot';
 	z.onclick = showMatchesReview;
 	z.className =
 		'zmu-btn bo-bottom-btn zmu-btn--default zmu-btn__outline--blue';
@@ -499,9 +495,9 @@ function autoCloseRooms() {
 		// Update July 2020: Zoom added a second button with same class name.
 		for (let i = 0; i < closeAllRoomsButton.length; i++) {
 			if (closeAllRoomsButton[i].innerText.trim() === 'Close All Rooms') {
-	setTimeout(() => {
-				closeAllRoomsButton[i].click();
-	}, 0);
+				setTimeout(() => {
+					closeAllRoomsButton[i].click();
+				}, 0);
 				break;
 			}
 		}
@@ -516,11 +512,11 @@ function sleep(ms) {
  * User accepted pairings and opened rooms, so finalize pairs list.
  */
 async function updatePairingsFinal() {
-
 	// Remove the -Auto- button.
 	elements.autoButton.parentNode.removeChild(elements.autoButton);
 
 	// Attach to close all rooms button.
+	// @TODO not sure this is working anymor
 	setTimeout(attachCloseAllRooms, 100);
 
 	previousMatches = previousMatches.concat(currentMatches)
@@ -669,21 +665,49 @@ async function addToRooms() {
 		let p = currentMatches[i].Participants;
 		if (p[0].DisplayName === null || p[1].DisplayName === null) continue; // Leave out solos
 		// Made it past nulls. Open "Assign" dialog box.
-		assignButtons[roomNo].click();
 		// Loops through checkboxes.
-		let x = document.getElementsByClassName(
-			'zmu-data-selector-item__text'
-		);
-		for (let k = 0; k < x.length; k++) {
-			if (x[k].innerText === p[0].DisplayName
-				|| x[k].innerText === p[1].DisplayName) {
-				x[k].click();
-			}
-		}
-		assignButtons[roomNo].click(); // Unclick/Close
+		// this finds all of the checkboxes, regardless of which popup they belong to
+		console.log("addToRooms: room no " + roomNo);
+
+		await asyncClick(assignButtons[roomNo])
+		await asyncFindPair(p)
+		await asyncClick(assignButtons[roomNo])
 		roomNo++;
 	}
+}
 
+async function asyncFindPair(pair) {
+	let availableParticipants = document.getElementsByClassName(
+		'zmu-data-selector-item__text bo-room-assign-list-scrollbar__item-text'
+	);
+	console.log(logPrefix + "findPair: num avail part " + availableParticipants.length);
+
+	for (let k = 0; k < availableParticipants.length; k++) {
+		if (availableParticipants[k].innerText === pair[0].DisplayName
+			|| availableParticipants[k].innerText === pair[1].DisplayName) {
+			console.log(logPrefix + "findPair: clicking user checkbox [" + k + "] " + availableParticipants[k].innerText + " ");
+			await new Promise(r =>
+				setTimeout(() => {
+					availableParticipants[k].click();
+					r();
+				}, 0));  // queueMicrotask?
+		}
+	}
+	return "done";
+}
+
+async function asyncClick(element) {
+	element.click();
+}
+
+function clickWithPromise(element) {
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			element.click();
+			console.log("clicked with promise");
+			resolve("clicked");
+		}, 0);
+	});
 }
 
 /**
@@ -701,28 +725,24 @@ function closeZoomieSettings() {
 }
 
 /**
- * Show ignore users dialog box.
+ * The brains
  */
-function showMatchesReview() {
+async function showMatchesReview() {
 	// Close any popup dialog boxes that are opened when user clicks
 	// any of the "Assign" buttons.
-	closeAssignPopups();
+	await closeAssignPopups()
+	await resetPairings()
 
-	// Remove any users from rooms, then populate the users field.
-	resetPairings();
-
+	console.log("after awaits in showMatchesReview")
 	// Update global user data.
 	assignButtons = getAllAssignButtons();
-	if (!assignButtons) { // silent fail after user alert
-		//return;
+	if (assignButtons[0]) {
+		initializeAssignableUsers();
 	}
-	assignableUsers = getAllAssignableUsers();
-	if (!assignableUsers) { // silent fail after user alert
-		//return;
-	}
+}
 
+function makeMatchesAndReview() {
 	// Generate pairs if new run.
-	// currentMatches = makeRoundRobinPairings(assignableUsers);
 	generatedPairs = makeMatches(assignableUsers)
 	console.log(logPrefix + "currentMatches " + currentMatches.length)
 
@@ -736,7 +756,6 @@ function showMatchesReview() {
 	elements.userIgnoreSelectList.style.display = '';
 	elements.okayButtonDiv.style.display = '';
 	elements.userIgnoreSelectCancel.style.display = '';
-
 	// Users
 	addMatchesReview();
 
@@ -744,20 +763,18 @@ function showMatchesReview() {
 	try {
 		document.getElementsByClassName('window-content')[0].style.display = 'none';
 	} catch (e) {
-
+		console.log(logPrefix + e)
 	}
 }
 
 /**
  * Show Zoomie settings.
  */
-function showZoomieSettings() {
+async function showZoomieSettings() {
 	// Close any popup dialog boxes that are opened when user clicks
 	// any of the "Assign" buttons.
-	closeAssignPopups();
-
-	// Remove any users from rooms, then populate the users field.
-	resetPairings();
+	await closeAssignPopups()
+	await resetPairings()
 
 	// Attach the elements
 	attachZoomieSettings(); // Create the elements.
@@ -782,40 +799,70 @@ function showZoomieSettings() {
 /**
  * Closes all Assign button popups before running auto-assign.
  */
-function closeAssignPopups() {
+const visibleParticipantsPopUpClass1 = 'zmu-tooltip-zmu-paper'
+const visibleParticipantsPopUpClass2 = 'bo-room-assign-list-scrollbar'
+
+async function closeAssignPopups() {
+	console.log("inside closeAssignPopups")
 	let a = document.getElementsByClassName(
 		'zmu-btn bo-room-item-container__ghost-blue zmu-btn--ghost ' +
 		'zmu-btn__outline--blue zmu-btn--sm'
 	);
-	let x = document.getElementsByClassName('zmu-tooltip__container');
+
+	let x = document.getElementsByClassName(visibleParticipantsPopUpClass2);
+	console.log(logPrefix + "cap: containers to close found: " + x.length);
 	for (let i = 0; i < x.length; i++) {
+		// all of the containers are there all of the time, but most are not visible
 		if (x[i].innerHTML !== '') {
 			// Typically only one opened at a time.
 			// Thus, could break here.
 			// But for the sake of completeness, it's worth it to
 			// assume that in some case two dialog popups would
 			// be open simultaneously.
-			a[i].click();
+			console.log(logPrefix + "cap: clicking a button");
+			await new Promise(r =>
+				setTimeout(() => {
+					a[i].click();
+					r();
+				}, 0)
+			);
 		}
 	}
 }
 
-function resetPairings() {
+async function resetPairings() {
 	currentMatches = []
 	pendingMatches = new Map()
 
+	console.log("inside resetpairings: " + assignButtons.length)
 	// Go through every room and remove any users in the room.
 	for (let i = 0; i < assignButtons.length; i++) {
-		assignButtons[i].click(); // Open dialog
-		let x = document.getElementsByClassName(
-			'zmu-data-selector-item__checkbox zmu-data-selector-item__checkbox--checked'
-		);
-		for (let k = x.length - 1; k >= 0; k--) {
-			//~ console.log('removing user from room');
-			x[k].click(); // Unclick the user.
+		try {
+			await asyncClick(assignButtons[i]);
+			await removeAllParticipantsFromBORoom();
+			await asyncClick(assignButtons[i]);
+		} catch (e) {
+			console.log(logPrefix + 'Could not reset pairings');
+
 		}
-		assignButtons[i].click(); // Close dialog
 	}
+}
+
+async function removeAllParticipantsFromBORoom() {
+	//return new Promise((resolve) => {
+	let allCheckedBoxes = document.getElementsByClassName(
+		'zmu-data-selector-item__checkbox zmu-data-selector-item__checkbox--checked'
+	);
+	for (let k = allCheckedBoxes.length - 1; k >= 0; k--) {
+		console.log('removing user from room ' + k);
+		await new Promise(r =>
+			setTimeout(() => {
+				allCheckedBoxes[k].click(); // Unclick the user.
+				r();
+			}, 0)
+		);
+	}
+	return "done";
 }
 
 function duplicateOrAvoid(firstParticipant, secondParticipant) {
@@ -1263,65 +1310,68 @@ function isPronoun(part) {
 
 }
 
-/**
- *
- * @return {Array} y Returns an array of objects representing users.
- */
-function getAllAssignableUsers() {
+function initializeAssignableUsers() {
+	clickWithPromise(assignButtons[0])
+		.then(() => {
+			return new Promise((resolve) => {
+				console.log("inside IAU promise")
+				assignableUsers = []
+				let x = document.getElementsByClassName(
+					'zmu-data-selector-item__text bo-room-assign-list-scrollbar__item-text'
+				);
+				console.log("IAU: found available parts num: " + x.length)
+				if (x.length === 0) {
+					//alert('(Zoomie) No assignable users!');
+					assignButtons[0].click(); // Close the box, maybe just resolve instead
+					return;
+				}
 
-	// Relies on clicking the first Assign button.
-	if (!assignButtons[0])
-		return false;
-	assignButtons[0].click();
+				asterisksUsers.clear()
+				cohosts.clear()
+				let lastCohost = "";
+				for (let i = 0; i < x.length; i++) {
+					let username = x[i].innerText.trim()
+					let skip = username.includes("***")
+					if (skip) {
+						asterisksUsers.set(username, true)
+						continue
+					}
+					if (containsCohost(username) === true) {
+						cohosts.set(username, true)
+						continue
+					}
 
-	let x = document.getElementsByClassName(
-		'zmu-data-selector-item__text bo-room-assign-list-scrollbar__item-text'
-	);
-	if (x.length === 0) {
-		//alert('(Zoomie) No assignable users!');
-		assignButtons[0].click(); // Close the box
-		return false;
-	}
+					// Add an attribute for our purposes
+					assignableUsers.push(username)
+				}
 
-	asterisksUsers.clear()
-	cohosts.clear()
-	let y = [];
-	let lastCohost = "";
-	for (let i = 0; i < x.length; i++) {
-		let username = x[i].innerText.trim()
-		let skip = username.includes("***")
-		if (skip) {
-			asterisksUsers.set(username, true)
-			continue
-		}
-		if (containsCohost(username) === true) {
-			cohosts.set(username, true)
-			continue
-		}
+				// grab lastCohost randomly from list
+				let index = 0
+				let key = Math.floor(Math.random() * cohosts.size);
+				for (let username of cohosts.keys()) {
+					if (index === key) {
+						console.log(logPrefix + "last cohost: " + username)
+						lastCohost = username
+					} else {
+						assignableUsers.push(username)
+					}
+					index++
+				}
 
-		// Add an attribute for our purposes
-		y.push(username)
-	}
-	assignButtons[0].click(); // unclick
-
-	// grab lastCohost randomly from list
-	let index = 0
-	let key = Math.floor(Math.random() * cohosts.size);
-	for (let username of cohosts.keys()) {
-		if (index === key) {
-			console.log(logPrefix + "last cohost: " + username)
-			lastCohost = username
-		} else {
-			y.push(username)
-		}
-		index++
-	}
-
-	let shuffled = shuffle(y);
-	if (lastCohost !== "") {
-		shuffled.push(lastCohost)
-	}
-	return shuffled;
+				assignableUsers = shuffle(assignableUsers);
+				if (lastCohost !== "") {
+					assignableUsers.push(lastCohost)
+				}
+				resolve();
+			})
+		})
+		.then(() => {
+			return clickWithPromise(assignButtons[0]);
+		})
+		.then(() => makeMatchesAndReview())
+		.catch((broken) => {
+			console.log("oh noes " + broken)
+		})
 }
 
 function containsCohost(username) {
@@ -1358,7 +1408,7 @@ function getAllAssignButtons() {
 	);
 	// @TODO click "Add Room" programmatically instead of requiring it manually
 	if (x.length === 0) {
-		alert('(Zoomie) No assignable buttons!');
+		alert('(Bonobot) No assignable buttons!');
 		return false;
 	}
 	return x;
